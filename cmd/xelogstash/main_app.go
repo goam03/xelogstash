@@ -16,16 +16,15 @@ import (
 	"os"
 	"runtime"
 
-	singleinstance "github.com/allan-simon/go-singleinstance"
-	"github.com/billgraziano/xelogstash/applog"
-
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/summary"
-
 	_ "github.com/alexbrainman/odbc"
-	"github.com/billgraziano/xelogstash/config"
+	singleinstance "github.com/allan-simon/go-singleinstance"
 	"github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/summary"
 )
 
 var sha1ver string

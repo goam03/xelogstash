@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/billgraziano/xelogstash/applog"
-	"github.com/billgraziano/xelogstash/config"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/status"
-	"github.com/billgraziano/xelogstash/xe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/dustin/go-humanize/english"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/status"
+	"github.com/goam03/xelogstash/xe"
 )
 
 func processSource(wid int, source config.Source) (sourceResult Result, err error) {

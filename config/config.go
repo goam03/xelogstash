@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Showmax/go-fqdn"
-
 	"github.com/billgraziano/toml"
 	"github.com/pkg/errors"
 )

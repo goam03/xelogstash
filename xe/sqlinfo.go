@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/billgraziano/mssqlodbc"
 	"github.com/pkg/errors"
+
+	"github.com/billgraziano/mssqlodbc"
 )
 
 // SQLInfo stores cached info about the server we connected to

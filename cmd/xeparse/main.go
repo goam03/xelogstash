@@ -9,11 +9,12 @@ import (
 	"strings"
 
 	_ "github.com/alexbrainman/odbc"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/logstash"
-	"github.com/billgraziano/xelogstash/xe"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/logstash"
+	"github.com/goam03/xelogstash/xe"
 )
 
 var opts struct {

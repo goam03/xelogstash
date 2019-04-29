@@ -7,13 +7,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/billgraziano/xelogstash/config"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/logstash"
-	"github.com/billgraziano/xelogstash/status"
-	"github.com/billgraziano/xelogstash/summary"
-	"github.com/billgraziano/xelogstash/xe"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/logstash"
+	"github.com/goam03/xelogstash/status"
+	"github.com/goam03/xelogstash/summary"
+	"github.com/goam03/xelogstash/xe"
 )
 
 func processSession(

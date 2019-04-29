@@ -10,8 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/billgraziano/xelogstash/log"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
 )
 
 func getLogFileName() (s string, err error) {

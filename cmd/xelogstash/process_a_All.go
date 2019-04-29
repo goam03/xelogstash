@@ -5,13 +5,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/billgraziano/xelogstash/applog"
-	"github.com/pkg/errors"
-
-	"github.com/billgraziano/xelogstash/config"
-	"github.com/billgraziano/xelogstash/log"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/dustin/go-humanize/english"
+	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
 )
 
 func processall(settings config.Config) (string, bool) {

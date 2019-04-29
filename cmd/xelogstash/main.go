@@ -6,13 +6,15 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"github.com/billgraziano/xelogstash/applog"
 	"github.com/pkg/errors"
 
-	"github.com/billgraziano/xelogstash/log"
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/log"
 )
 
-const version = "0.33"
+const (
+	version = "0.33"
+)
 
 func main() {
 	err := runApp()
@@ -25,6 +27,7 @@ func main() {
 		log.Error(fmt.Sprintf("runapp: %s", err.Error()))
 		os.Exit(1)
 	}
+
 	log.Debug("exiting main")
 }
 

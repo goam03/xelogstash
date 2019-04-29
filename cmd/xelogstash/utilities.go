@@ -11,8 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/billgraziano/xelogstash/log"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
 )
 
 // SQLInfo stores details about the server we connected to

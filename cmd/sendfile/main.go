@@ -5,10 +5,11 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/logstash"
 	"github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/logstash"
 )
 
 // This utility was primarily written to test against logz.io
