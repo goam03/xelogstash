@@ -28,11 +28,11 @@ var logs []string
 func Initialize(c config.AppLog) (err error) {
 	appconfig = c
 
-	if appconfig.Logstash == "" {
+	if appconfig.Logstash.Addr == "" {
 		return nil
 	}
 
-	ls, err = logstash.NewHost(appconfig.Logstash, 180)
+	ls, err = logstash.NewHost(&appconfig.Logstash)
 	if err != nil {
 		return errors.Wrap(err, "logstash.newhost")
 	}
@@ -136,7 +136,7 @@ func Log(src logstash.Record) error {
 
 	logs = append(logs, rs)
 
-	if appconfig.Logstash == "" {
+	if appconfig.Logstash.Addr == "" {
 		return nil
 	}
 

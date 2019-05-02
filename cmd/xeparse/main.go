@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/goam03/xelogstash/config"
+
 	_ "github.com/alexbrainman/odbc"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
@@ -44,7 +46,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	info, err := xe.GetSQLInfo(opts.Server)
+	info, err := xe.GetSQLInfo(&config.SQLServer{
+		FQDN: opts.Server,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

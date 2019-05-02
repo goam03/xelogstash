@@ -8,14 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/billgraziano/mssqlodbc"
 	"github.com/pkg/errors"
 
 	"github.com/goam03/xelogstash/config"
 	"github.com/goam03/xelogstash/log"
 	"github.com/goam03/xelogstash/logstash"
+	"github.com/goam03/xelogstash/mssqlodbc"
 	"github.com/goam03/xelogstash/status"
 	"github.com/goam03/xelogstash/summary"
+	"github.com/goam03/xelogstash/xe"
 )
 
 type jobResult struct {
@@ -41,14 +42,16 @@ type jobResult struct {
 func processAgentJobs(wid int, source config.Source) (result Result, err error) {
 
 	result.Session = "agent_jobs"
-	result.Instance = source.FQDN // this will be reset later
+	result.Instance = source.SQLServer.FQDN // this will be reset later
 	result.Source = source
 	dummyFileName := "_dummy_"
 
 	cxn := mssqlodbc.Connection{
-		Server:  source.FQDN,
-		AppName: "xelogstash.exe",
-		Trusted: true,
+		AppName:  xe.APPName,
+		Server:   source.SQLServer.FQDN,
+		User:     source.SQLServer.Username,
+		Password: source.SQLServer.Password,
+		Trusted:  len(source.SQLServer.Username) == 0 && len(source.SQLServer.Password) == 0,
 	}
 
 	connectionString, err := cxn.ConnectionString()
@@ -67,7 +70,7 @@ func processAgentJobs(wid int, source config.Source) (result Result, err error) 
 	}
 	defer safeClose(db, &err)
 
-	info, err := GetInstance(db, source.FQDN)
+	info, err := GetInstance(db, source.SQLServer.FQDN)
 	if err != nil {
 		return result, errors.Wrap(err, "getinstance")
 	}
@@ -96,8 +99,8 @@ func processAgentJobs(wid int, source config.Source) (result Result, err error) 
 	}
 
 	var ls *logstash.Logstash
-	if appConfig.Logstash != "" {
-		ls, err = logstash.NewHost(appConfig.Logstash, 180)
+	if appConfig.Logstash.Addr != "" {
+		ls, err = logstash.NewHost(&appConfig.Logstash)
 		if err != nil {
 			return result, errors.Wrap(err, "logstash-new")
 		}
@@ -180,7 +183,7 @@ func processAgentJobs(wid int, source config.Source) (result Result, err error) 
 		return result, errors.Wrap(err, "db.open")
 	}
 
-	var netconn *net.TCPConn
+	var netconn net.Conn
 	first := true
 	//gotRows := false
 	//var rowCount int

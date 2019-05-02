@@ -4,8 +4,6 @@ github.com/alexbrainman/odbc v0.0.0-20190102080306-cf37ce290779 h1:njXFG+U50CJ0T
 github.com/alexbrainman/odbc v0.0.0-20190102080306-cf37ce290779/go.mod h1:WEQLoRNIjBhywJqaxe0olilzzBDABc5EVeETiprzR00=
 github.com/allan-simon/go-singleinstance v0.0.0-20160830203053-79edcfdc2dfc h1:mZca0/HZ/XWXP9txkfdl2GH6mUzBqAlyJz3u5Lg8fuA=
 github.com/allan-simon/go-singleinstance v0.0.0-20160830203053-79edcfdc2dfc/go.mod h1:qqsTQiwdyqxU05iDCsi0oN3P4nrVxAmn8xCtODDSf/U=
-github.com/billgraziano/mssqlodbc v0.0.0-20170430162528-8873d0e202ac h1:43B12E/RqVKMEZqKm4rsCqWypBq/Ctaj2Os1s92x3so=
-github.com/billgraziano/mssqlodbc v0.0.0-20170430162528-8873d0e202ac/go.mod h1:Jzu5sa/KG41LKVbL0nCNffHRu4sCptEm/zXdmX6tN7o=
 github.com/billgraziano/toml v0.3.0 h1:ouZgns7k8pC2hIqoea1ac+N+cq8ceDpFImnRpBnXqyo=
 github.com/billgraziano/toml v0.3.0/go.mod h1:Il3cv31KlDNX91RemB8FU9l1kuHwYe2laq7XUPJx7ww=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=

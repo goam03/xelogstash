@@ -5,6 +5,8 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/goam03/xelogstash/config"
+
 	"github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
 
@@ -42,7 +44,9 @@ func main() {
 	// log.Info("token:", opts.Token)
 
 	var ls *logstash.Logstash
-	ls, err = logstash.NewHost(opts.Logstash, 180)
+	ls, err = logstash.NewHost(&config.LogstashConf{
+		Addr: opts.Logstash,
+	})
 	if err != nil {
 		log.Fatal("logstash.newhost:", err)
 	}

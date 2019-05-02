@@ -77,8 +77,8 @@ func processSession(
 
 	var query string
 	var ls *logstash.Logstash
-	if appConfig.Logstash != "" {
-		ls, err = logstash.NewHost(appConfig.Logstash, 180)
+	if appConfig.Logstash.Addr != "" {
+		ls, err = logstash.NewHost(&appConfig.Logstash)
 		if err != nil {
 			return result, errors.Wrap(err, "logstash-new")
 		}
@@ -107,7 +107,7 @@ func processSession(
 	}
 	defer safeClose(rows, &err)
 
-	var netconn *net.TCPConn
+	var netconn net.Conn
 	first := true
 	gotRows := false
 	startAtHit := false
