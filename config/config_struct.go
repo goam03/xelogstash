@@ -8,7 +8,7 @@ import (
 
 // Source defines a source of extended event information
 type Source struct {
-	SQLServer      SQLServer
+	SQLServer      SQLServer `toml:"sql_server"`
 	Sessions       []string
 	IgnoreSessions bool `toml:"ignore_sessions"` // if true, skip XE sessions
 	Prefix         string
