@@ -25,7 +25,7 @@ func processSession(
 
 	result.Session = source.Sessions[sessionid]
 	result.Source = source
-	result.Instance = source.FQDN // this will be reset later
+	result.Instance = source.SQLServer.FQDN // this will be reset later
 
 	var objectName, eventData, fileName string
 	var fileOffset int64
