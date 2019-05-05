@@ -128,7 +128,7 @@ func runApp() error {
 	}
 
 	// Log the logstash setting
-	if settings.App.Logstash == "" {
+	if settings.App.Logstash.Addr == "" {
 		logMessage = "app.logstash is empty.  Not logging SQL Server events to logstash."
 	} else {
 		logMessage = fmt.Sprintf("app.logstash: %s", settings.App.Logstash)
@@ -140,7 +140,7 @@ func runApp() error {
 	}
 
 	// Report the app logstash
-	if settings.AppLog.Logstash == "" {
+	if settings.AppLog.Logstash.Addr == "" {
 		logMessage = "applog.logstash is empty.  Not logging application events to logstash."
 	} else {
 		logMessage = fmt.Sprintf("applog.logstash: %s", settings.AppLog.Logstash)
