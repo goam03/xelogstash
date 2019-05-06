@@ -38,31 +38,24 @@ copies = [  "mssql.timestasmp:newtimestamp",
             ]
 moves = [ ]
 
-
-[[logstash]]
+[app.logstash]
 # addr = "D30:8888"
 # ca_cert
 # client_cert
 # client_key
 # timeout = 180
 
+[applog.logstash]
+# addr = "D30:8888"
+# ca_cert
+# client_cert
+# client_key
+# timeout = 180
 
-[[sql_server]]
+[defaults.sql_server]
 fqdn = "localhost"
 # username = "username"
 # password = "password"
-
-
-[[ sql_server ]]
-fqdn = "remote.domain.loc"
-# username = "username"
-# password = "password"
-#
-# Can repeat any field in the defaults for each source
-# These fields overwrite defaults
-# Except that adds, copies, and moves are merged
-#
-
 
 
 
