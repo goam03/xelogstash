@@ -170,13 +170,28 @@ func (ls *Logstash) connectWithMutualTLS() (net.Conn, error) {
 		return nil, nil
 	}
 
-	var connection *tls.Conn
+	var tcpConnection *net.TCPConn
 	addr, err := net.ResolveTCPAddr("tcp", ls.Host)
 	if err != nil {
 		return nil, err
 	}
 
-	tlscnf := &tls.Config{}
+	// Init connection
+	tcpConnection, err = net.DialTCP("tcp", nil, addr)
+	if err != nil {
+		return tcpConnection, err
+	}
+
+	if tcpConnection != nil {
+		tcpConnection.SetLinger(0)
+		tcpConnection.SetKeepAlive(true)
+		tcpConnection.SetKeepAlivePeriod(keepAlivePeriod)
+	}
+
+	// Init TLS config
+	tlscnf := &tls.Config{
+		InsecureSkipVerify: true,
+	}
 
 	// Collect CA certificates
 	if len(ls.tlsConfig.caCert) > 0 {
@@ -189,14 +204,13 @@ func (ls *Logstash) connectWithMutualTLS() (net.Conn, error) {
 		tlscnf.Certificates = []tls.Certificate{*ls.tlsConfig.clientCert}
 	}
 
-	// Initialize connection
-	dialer := &net.Dialer{
-		KeepAlive: keepAlivePeriod,
-	}
-	connection, err = tls.DialWithDialer(dialer, "tcp", addr.String(), tlscnf)
+	connection := tls.Client(tcpConnection, tlscnf)
 	if err != nil {
 		return nil, err
 	}
+
+	ls.Connection = connection
+	ls.setTimeouts()
 
 	// this is required to complete the handshake and populate the connection state
 	// we are doing this so we can print the peer certificates prior to reading / writing to the connection
