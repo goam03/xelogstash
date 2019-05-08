@@ -9,11 +9,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/billgraziano/xelogstash/config"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/logstash"
-	"github.com/billgraziano/xelogstash/seq"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/logstash"
+	"github.com/goam03/xelogstash/seq"
 )
 
 // appconfig holds the AppLog appconfig
@@ -27,11 +28,11 @@ var logs []string
 func Initialize(c config.AppLog) (err error) {
 	appconfig = c
 
-	if appconfig.Logstash == "" {
+	if appconfig.Logstash.Addr == "" {
 		return nil
 	}
 
-	ls, err = logstash.NewHost(appconfig.Logstash, 180)
+	ls, err = logstash.NewHost(&appconfig.Logstash)
 	if err != nil {
 		return errors.Wrap(err, "logstash.newhost")
 	}
@@ -135,7 +136,7 @@ func Log(src logstash.Record) error {
 
 	logs = append(logs, rs)
 
-	if appconfig.Logstash == "" {
+	if appconfig.Logstash.Addr == "" {
 		return nil
 	}
 

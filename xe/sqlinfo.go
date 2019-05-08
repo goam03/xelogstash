@@ -5,8 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/billgraziano/mssqlodbc"
+	"github.com/goam03/xelogstash/config"
+
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/mssqlodbc"
+)
+
+const (
+	// APPName is the application name
+	APPName = "xelogstash.exe"
 )
 
 // SQLInfo stores cached info about the server we connected to
@@ -49,16 +57,18 @@ type MapValueKey struct {
 // fields  map[dataTypeKey]string
 
 // GetSQLInfo gets basic SQL Server info and lookup values
-func GetSQLInfo(fqdn string) (info SQLInfo, err error) {
+func GetSQLInfo(conf *config.SQLServer) (info SQLInfo, err error) {
 
 	info.Fields = make(map[FieldTypeKey]string)
 	info.Actions = make(map[string]string)
 	info.MapValues = make(map[MapValueKey]string)
 
 	cxn := mssqlodbc.Connection{
-		Server:  fqdn,
-		AppName: "xelogstash.exe",
-		Trusted: true,
+		AppName:  APPName,
+		Server:   conf.FQDN,
+		User:     conf.Username,
+		Password: conf.Password,
+		Trusted:  len(conf.Username) == 0 && len(conf.Password) == 0,
 	}
 
 	// connectionString := fmt.Sprintf("Driver={SQL Server Native Client 11.0};Server=%s; Trusted_Connection=yes; App=xecap.exe;", source.FQDN)

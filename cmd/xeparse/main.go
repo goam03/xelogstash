@@ -8,12 +8,15 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/goam03/xelogstash/config"
+
 	_ "github.com/alexbrainman/odbc"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/logstash"
-	"github.com/billgraziano/xelogstash/xe"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/logstash"
+	"github.com/goam03/xelogstash/xe"
 )
 
 var opts struct {
@@ -43,7 +46,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	info, err := xe.GetSQLInfo(opts.Server)
+	info, err := xe.GetSQLInfo(&config.SQLServer{
+		FQDN: opts.Server,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

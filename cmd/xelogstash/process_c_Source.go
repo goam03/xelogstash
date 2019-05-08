@@ -4,19 +4,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/billgraziano/xelogstash/applog"
-	"github.com/billgraziano/xelogstash/config"
-	"github.com/billgraziano/xelogstash/log"
-	"github.com/billgraziano/xelogstash/status"
-	"github.com/billgraziano/xelogstash/xe"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/dustin/go-humanize/english"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/config"
+	"github.com/goam03/xelogstash/log"
+	"github.com/goam03/xelogstash/status"
+	"github.com/goam03/xelogstash/xe"
 )
 
 func processSource(wid int, source config.Source) (sourceResult Result, err error) {
 
-	logmsg := fmt.Sprintf("[%d] Source: %s;  Sessions: %d", wid, source.FQDN, len(source.Sessions))
+	logmsg := fmt.Sprintf("[%d] Source: %s;  Sessions: %d", wid, source.SQLServer.FQDN, len(source.Sessions))
 	if source.Exclude17830 {
 		logmsg += ";  Excluding 17830 errors"
 	}
@@ -28,9 +29,9 @@ func processSource(wid int, source config.Source) (sourceResult Result, err erro
 	log.Info(logmsg)
 
 	var textMessage string
-	info, err := xe.GetSQLInfo(source.FQDN)
+	info, err := xe.GetSQLInfo(&source.SQLServer)
 	if err != nil {
-		textMessage = fmt.Sprintf("[%d] %s - fqdn: %s err: %v", wid, info.Domain, source.FQDN, err)
+		textMessage = fmt.Sprintf("[%d] %s - fqdn: %s err: %v", wid, info.Domain, source.SQLServer.FQDN, err)
 		log.Error(textMessage)
 		_ = applog.Error(textMessage)
 		return sourceResult, errors.Wrap(err, "xe.getsqlinfo")
@@ -40,7 +41,7 @@ func processSource(wid int, source config.Source) (sourceResult Result, err erro
 
 	cleanRun := true
 	for i := range source.Sessions {
-		log.Debug(fmt.Sprintf("[%d] Starting session: %s on  %s", wid, source.Sessions[i], source.FQDN))
+		log.Debug(fmt.Sprintf("[%d] Starting session: %s on  %s", wid, source.Sessions[i], source.SQLServer.FQDN))
 		start := time.Now()
 
 		var result Result
@@ -67,7 +68,7 @@ func processSource(wid int, source config.Source) (sourceResult Result, err erro
 			// else
 			continue
 		} else if err != nil {
-			textMessage = fmt.Sprintf("[%d] *** ERROR: Domain: %s - FQDN: %s - %s - %s : %s\r\n", wid, info.Domain, source.FQDN, status.ClassXE, source.Sessions[i], err.Error())
+			textMessage = fmt.Sprintf("[%d] *** ERROR: Domain: %s - FQDN: %s - %s - %s : %s\r\n", wid, info.Domain, source.SQLServer.FQDN, status.ClassXE, source.Sessions[i], err.Error())
 			cleanRun = false
 			log.Error(textMessage)
 			_ = applog.Error(textMessage)
@@ -113,7 +114,7 @@ func processSource(wid int, source config.Source) (sourceResult Result, err erro
 		var textMessage string
 
 		if err != nil {
-			textMessage = fmt.Sprintf("[%d] *** ERROR: Domain: %s; FQDN: %s; (%s) %s\r\n", wid, info.Domain, source.FQDN, "Agent Jobs", err.Error())
+			textMessage = fmt.Sprintf("[%d] *** ERROR: Domain: %s; FQDN: %s; (%s) %s\r\n", wid, info.Domain, source.SQLServer.FQDN, "Agent Jobs", err.Error())
 			cleanRun = false
 			_ = applog.Error(textMessage)
 			log.Error(textMessage)

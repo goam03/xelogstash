@@ -1,17 +1,21 @@
 package logstash
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
-	"github.com/pkg/errors"
+	"github.com/goam03/xelogstash/config"
 )
 
 // Severity is the severity for a record
@@ -24,6 +28,19 @@ const (
 	Warning Severity = 4
 	// Info event
 	Info Severity = 6
+)
+
+const (
+	// keepAlivePeriod is the default keep alive period
+	keepAlivePeriod = time.Duration(5) * time.Second
+
+	// defaultTimeout is the default timeout
+	defaultTimeout = 180
+)
+
+var (
+	// ErrNilConnection is the error when connection is nil
+	ErrNilConnection = errors.New("conn & err can't both be nil")
 )
 
 func (s Severity) String() string {
@@ -39,30 +56,66 @@ func (s Severity) String() string {
 	}
 }
 
+type tlsConfig struct {
+	caCert     []byte
+	clientCert *tls.Certificate
+}
+
 // Logstash is the basic struct
 type Logstash struct {
-	Connection *net.TCPConn
+	Connection net.Conn
 	Timeout    int    //Timeout in seconds
 	Host       string // Host in host:port format
+
+	tlsConfig *tlsConfig
 }
 
 // NewHost generates a logstash sender from a host:port format
-func NewHost(host string, timeout int) (*Logstash, error) {
+func NewHost(conf *config.LogstashConf) (*Logstash, error) {
+	if conf == nil {
+		return nil, nil
+	}
 
 	var err error
 	ls := &Logstash{}
 
-	_, lsportstring, err := net.SplitHostPort(host)
+	_, lsportstring, err := net.SplitHostPort(conf.Addr)
 	if err != nil {
 		return ls, errors.Wrap(err, "net-splithost")
 	}
-	_, err = strconv.Atoi(lsportstring)
-	if err != nil {
+
+	if _, err = strconv.Atoi(lsportstring); err != nil {
 		return ls, errors.Wrap(err, "logstash port isn't numeric")
 	}
 
-	ls.Host = host
-	ls.Timeout = timeout
+	if conf.Timeout == 0 {
+		conf.Timeout = defaultTimeout
+	}
+
+	ls.Host = conf.Addr
+	ls.Timeout = conf.Timeout
+
+	if len(conf.CACertPath) > 0 || (len(conf.ClientCertPath) > 0 && len(conf.ClientKeyPath) > 0) {
+		ls.tlsConfig = &tlsConfig{}
+
+		if len(conf.ClientCertPath) > 0 && len(conf.ClientKeyPath) > 0 {
+			cert, err := tls.LoadX509KeyPair(conf.ClientCertPath, conf.ClientKeyPath)
+			if err != nil {
+				return nil, err
+			}
+
+			ls.tlsConfig.clientCert = &cert
+		}
+
+		if len(conf.CACertPath) > 0 {
+			caCert, err := ioutil.ReadFile(conf.CACertPath)
+			if err != nil {
+				return nil, err
+			}
+
+			ls.tlsConfig.caCert = caCert
+		}
+	}
 
 	return ls, nil
 }
@@ -74,26 +127,106 @@ func (ls *Logstash) setTimeouts() {
 }
 
 // Connect to the host
-func (ls *Logstash) Connect() (*net.TCPConn, error) {
+func (ls *Logstash) Connect() (net.Conn, error) {
+	if ls.tlsConfig == nil {
+		return ls.connect()
+	}
+
+	return ls.connectWithMutualTLS()
+}
+
+// connect connects to the host
+func (ls *Logstash) connect() (net.Conn, error) {
 	var connection *net.TCPConn
 	addr, err := net.ResolveTCPAddr("tcp", ls.Host)
 	if err != nil {
 		return connection, err
 	}
+
 	connection, err = net.DialTCP("tcp", nil, addr)
 	if err != nil {
 		return connection, err
 	}
+
 	if connection != nil {
+		connection.SetLinger(0)
+		connection.SetKeepAlive(true)
+		connection.SetKeepAlivePeriod(keepAlivePeriod)
+
 		ls.Connection = connection
-		ls.Connection.SetLinger(0)
-		ls.Connection.SetKeepAlive(true)
-		ls.Connection.SetKeepAlivePeriod(time.Duration(5) * time.Second)
 		ls.setTimeouts()
 	}
+
 	if connection == nil && err == nil {
-		return connection, errors.New("conn & err can't both be nil")
+		return connection, ErrNilConnection
 	}
+
+	return connection, err
+}
+
+// connectWithMutualTLS connects to the host using mutual TLS authentication
+func (ls *Logstash) connectWithMutualTLS() (net.Conn, error) {
+	if ls.tlsConfig == nil {
+		return nil, nil
+	}
+
+	var tcpConnection *net.TCPConn
+	addr, err := net.ResolveTCPAddr("tcp", ls.Host)
+	if err != nil {
+		return nil, err
+	}
+
+	// Init connection
+	tcpConnection, err = net.DialTCP("tcp", nil, addr)
+	if err != nil {
+		return tcpConnection, err
+	}
+
+	if tcpConnection != nil {
+		tcpConnection.SetLinger(0)
+		tcpConnection.SetKeepAlive(true)
+		tcpConnection.SetKeepAlivePeriod(keepAlivePeriod)
+	}
+
+	// Init TLS config
+	tlscnf := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+
+	// Collect CA certificates
+	if len(ls.tlsConfig.caCert) > 0 {
+		tlscnf.RootCAs = x509.NewCertPool()
+		tlscnf.RootCAs.AppendCertsFromPEM(ls.tlsConfig.caCert)
+	}
+
+	// Set client cert + PK
+	if ls.tlsConfig.clientCert != nil {
+		tlscnf.Certificates = []tls.Certificate{*ls.tlsConfig.clientCert}
+	}
+
+	connection := tls.Client(tcpConnection, tlscnf)
+	if err != nil {
+		return nil, err
+	}
+
+	ls.Connection = connection
+	ls.setTimeouts()
+
+	// this is required to complete the handshake and populate the connection state
+	// we are doing this so we can print the peer certificates prior to reading / writing to the connection
+	if err = connection.Handshake(); err != nil {
+		return nil, err
+	}
+
+	if connection != nil {
+		ls.Connection = connection
+		ls.setTimeouts()
+	}
+
+	if connection == nil && err == nil {
+		return nil, ErrNilConnection
+	}
+
 	return connection, err
 }
 
@@ -213,14 +346,17 @@ func ProcessMods(json string, adds, copies, moves map[string]string) (string, er
 		if gjson.Get(json, dst).Exists() {
 			return json, errors.Wrapf(err, "can't overwrite key: %s", dst)
 		}
+
 		r := gjson.Get(json, src)
 		if !r.Exists() {
 			continue
 		}
+
 		json, err = sjson.Set(json, dst, doubleSlashes(r.Value()))
 		if err != nil {
-			return json, errors.Wrapf(err, "sjson.set: %s %v", dst, r.Value)
+			return json, errors.Wrapf(err, "sjson.set: %s %v", dst, r.Value())
 		}
+
 		json, err = sjson.Delete(json, src)
 		if err != nil {
 			return json, errors.Wrapf(err, "can't delete: %s", src)

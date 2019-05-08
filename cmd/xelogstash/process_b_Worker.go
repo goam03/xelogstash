@@ -3,7 +3,7 @@ package main
 import (
 	"sync"
 
-	"github.com/billgraziano/xelogstash/config"
+	"github.com/goam03/xelogstash/config"
 )
 
 // Result holds the result from a source or session process

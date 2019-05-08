@@ -1,5 +1,4 @@
 [app]
-# logstash = "D30:8888"
 summary = true # prints a summary of events to stdout after running
 samples = true # prints one of each type event to samples.xe.json after running
 
@@ -19,13 +18,21 @@ excludedEvents = [
     ]
 
 
-[[source]]
+[[sql_server]]
 fqdn = "localhost"
+# username = "username"
+# password = "password"
 
+
+[[logstash]]
+# addr = "D30:8888"
+# ca_cert
+# client_cert
+# client_key
+# timeout = 180
 
 
 [applog]
-# logstash = "D30:8888"
 timestamp_field_name = "@timestamp"
 samples = true # prints the JSON application logging messaegs to samples.applog.json
 

@@ -1,11 +1,9 @@
 [app]
 workers = 4 # max number of concurrent workers.  Defaults to the number of cores
-# logstash = "D30:8888"
 summary = true # prints a summary of events to stdout after running
 samples = true # prints one of each type event to samples.xe.json after running
 
 [applog]
-# logstash = "D30:8888"
 timestamp_field_name = "@timestamp"
 payload_field_name = "event" # all app fields will be nested under this field.  Optional.
 samples = true # prints the JSON application logging messaegs to samples.applog.json
@@ -32,29 +30,41 @@ excludedEvents = [
     ]
 
 adds = [    "global.collector:$(EXE)", # $(VAR) must be upper case.  the resulting value is lower case.
-            "global.collector.version:$(VERSION)"
+            "global.collector.version:$(VERSION)",
             "global.logtype:sqlxe" 
             ]
 copies = [  "mssql.timestasmp:newtimestamp",
             "mssql.server_instance_name:global.host" 
             ]
-moves = [ ] 
+moves = [ ]
 
+[app.logstash]
+# addr = "D30:8888"
+# ca_cert
+# client_cert
+# client_key
+# timeout = 180
+
+[applog.logstash]
+# addr = "D30:8888"
+# ca_cert
+# client_cert
+# client_key
+# timeout = 180
+
+[defaults.sql_server]
+fqdn = "localhost"
+# username = "username"
+# password = "password"
 
 [[source]]
-fqdn = "localhost"
+ [source.sql_server]
+ fqdn = "localhost"
+ # username = "username"
+ # password = "password"
 
-[[ source ]]
-fqdn = "remote.domain.loc"
-#
-# Can repeat any field in the defaults for each source
-# These fields overwrite defaults
-# Except that adds, copies, and moves are merged
-#
-
-
-
-
-
-
-
+[[source]]
+ [source.sql_server]
+ fqdn = "localhost1"
+ # username = "username"
+ # password = "password"

@@ -4,9 +4,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/billgraziano/xelogstash/applog"
-	"github.com/billgraziano/xelogstash/log"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/applog"
+	"github.com/goam03/xelogstash/log"
 )
 
 func closeLockFile(f *os.File) error {

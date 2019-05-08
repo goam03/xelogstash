@@ -8,7 +8,7 @@ import (
 
 // Source defines a source of extended event information
 type Source struct {
-	FQDN           string
+	SQLServer      SQLServer `toml:"sql_server"`
 	Sessions       []string
 	IgnoreSessions bool `toml:"ignore_sessions"` // if true, skip XE sessions
 	Prefix         string
@@ -36,18 +36,18 @@ type Source struct {
 // App defines the application configuration
 type App struct {
 	Workers  int
-	Logstash string
-	Samples  bool // Print sample JSON to stdout
-	Summary  bool // Print a summary to stdout
+	Logstash LogstashConf `toml:"logstash"`
+	Samples  bool         // Print sample JSON to stdout
+	Summary  bool         // Print a summary to stdout
 	// Enables a web server on :8080 with basic metrics
 	HTTPMetrics bool `toml:"http_metrics"`
 }
 
 // AppLog controls the application logging
 type AppLog struct {
-	Logstash       string
-	PayloadField   string `toml:"payload_field_name"`
-	TimestampField string `toml:"timestamp_field_name"`
+	Logstash       LogstashConf `toml:"logstash"`
+	PayloadField   string       `toml:"payload_field_name"`
+	TimestampField string       `toml:"timestamp_field_name"`
 	Samples        bool
 
 	Adds   map[string]string
@@ -57,6 +57,22 @@ type AppLog struct {
 	RawAdds   []string `toml:"adds"`
 	RawCopies []string `toml:"copies"`
 	RawMoves  []string `toml:"moves"`
+}
+
+// LogstashConf contains data to connect to logstash server
+type LogstashConf struct {
+	Addr           string `toml:"addr"`
+	CACertPath     string `toml:"ca_cert"`
+	ClientCertPath string `toml:"client_cert"`
+	ClientKeyPath  string `toml:"client_key"`
+	Timeout        int    `toml:"timeout"`
+}
+
+// SQLServer contains configuration for connection to SQL Server
+type SQLServer struct {
+	FQDN     string `toml:"fqdn"`
+	Username string `toml:"username"`
+	Password string `toml:"password"`
 }
 
 // Config defines the configuration read from the TOML file

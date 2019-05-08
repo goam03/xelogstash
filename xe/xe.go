@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-
-	"github.com/billgraziano/xelogstash/logstash"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/logstash"
 )
 
 const statementLength = 200
