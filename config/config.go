@@ -207,9 +207,13 @@ func (c *Config) setDefaults() {
 	// Then replace the original source
 	for i, v := range c.Sources {
 		n := c.Defaults
+
 		if v.SQLServer.FQDN != "" {
 			n.SQLServer.FQDN = v.SQLServer.FQDN
+			n.SQLServer.Username = v.SQLServer.Username
+			n.SQLServer.Password = v.SQLServer.Password
 		}
+
 		if len(v.Sessions) > 0 {
 			n.Sessions = v.Sessions
 		}
