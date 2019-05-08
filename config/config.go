@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Showmax/go-fqdn"
-
 	"github.com/billgraziano/toml"
 	"github.com/pkg/errors"
 )
@@ -53,7 +52,7 @@ func Get(f string, version string) (config Config, err error) {
 	}
 
 	for _, s := range config.Sources {
-		if s.FQDN == "" {
+		if s.SQLServer.FQDN == "" {
 			return config, errors.New("source without fqdn")
 		}
 		err = s.validate()
@@ -208,9 +207,13 @@ func (c *Config) setDefaults() {
 	// Then replace the original source
 	for i, v := range c.Sources {
 		n := c.Defaults
-		if v.FQDN != "" {
-			n.FQDN = v.FQDN
+
+		if v.SQLServer.FQDN != "" {
+			n.SQLServer.FQDN = v.SQLServer.FQDN
+			n.SQLServer.Username = v.SQLServer.Username
+			n.SQLServer.Password = v.SQLServer.Password
 		}
+
 		if len(v.Sessions) > 0 {
 			n.Sessions = v.Sessions
 		}

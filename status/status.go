@@ -11,8 +11,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/billgraziano/xelogstash/log"
 	"github.com/pkg/errors"
+
+	"github.com/goam03/xelogstash/log"
 )
 
 // key is used to define how a file is generated and preven duplicates
