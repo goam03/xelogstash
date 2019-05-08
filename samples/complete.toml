@@ -57,8 +57,14 @@ fqdn = "localhost"
 # username = "username"
 # password = "password"
 
+[[source]]
+ [source.sql_server]
+ fqdn = "localhost"
+ # username = "username"
+ # password = "password"
 
-
-
-
-
+[[source]]
+ [source.sql_server]
+ fqdn = "localhost1"
+ # username = "username"
+ # password = "password"
